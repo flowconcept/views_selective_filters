@@ -39,7 +39,7 @@ class Selective extends InOperator {
     parent::init($view, $display, $options);
 
     $this->options['exposed'] = TRUE;
-    $this->realField = $this->options['selective_display_field'];
+    $this->realField = $this->definition['field_base'];
   }
 
   /**
@@ -245,7 +245,7 @@ class Selective extends InOperator {
       'input' => $this->view->getExposedInput(),
       'base_field' => $this->definition['field_base'],
       'real_field' => $this->realField,
-      'field' => $this->field,
+      'field' => $this->options['selective_display_field'],
       'table' => $this->table,
       'ui_name' => $this->adminLabel(),
     )));
@@ -304,20 +304,18 @@ class Selective extends InOperator {
         return [];
       }
 
-      // Get ID of field that will be used for rendering.
-      $field = reset($fields);
-
-      $field_options = $field->options;
+      // Get the field and its options that will be used for rendering.
+      $field =& $fields[$this->options['selective_display_field']];
 
       // Get field Id.
-      $field_id = $field_options['id'];
+      $field_id = $field->options['id'];
 
       // Check that relationships are coherent between Field and Filter.
-      $no_display_field_relationship = empty($field_options['relationship']) || $field_options['relationship'] === 'none';
+      $no_display_field_relationship = empty($field->options['relationship']) || $field->options['relationship'] === 'none';
       $no_filter_relationship = empty($this->options['relationship']) || $this->options['relationship'] === 'none';
       $equal
         = (($no_display_field_relationship === TRUE) && ($no_filter_relationship === TRUE)) ||
-        ($field_options['relationship'] === $this->options['relationship']);
+        ($field->options['relationship'] === $this->options['relationship']);
 
       if (!$equal) {
         drupal_set_message(t('Selective filter "@name": relationship of field and filter must match.',
@@ -330,8 +328,8 @@ class Selective extends InOperator {
 
       // If main field is excluded from presentation, bring it back.
       // Set group type for handler to populate database relationships in query.
-      $field_options['exclude'] = 0;
-      $field_options['group_type'] = 'group';
+      $field->options['exclude'] = 0;
+      $field->options['group_type'] = 'group';
 
       // Remove all sorting: sorts must be added to aggregate fields.
       // $sorts =& $display->getHandlers('sort');
@@ -365,7 +363,6 @@ class Selective extends InOperator {
 
       // Create array of objects for selector.
       $oids = [];
-
       foreach ($view_copy->result as $row) {
         $key = '';
         $items = $field->getItems($row);
@@ -387,7 +384,6 @@ class Selective extends InOperator {
 
       // Sort values.
       $sort_option = $this->options['selective_display_sort'];
-
       switch($sort_option) {
         case 'ASC':
           asort($oids);
