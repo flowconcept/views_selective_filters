@@ -1,0 +1,14 @@
+{
+  "name": "flowconcept/views_selective_filters",
+  "description": "Views selective filters fork.",
+  "version": "master",
+  "type": "drupal-module",
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/flowconcept/views_selective_filters.git"
+    }
+  ],
+  "license": "GPL-2.0+",
+  "minimum-stability": "dev"
+}
